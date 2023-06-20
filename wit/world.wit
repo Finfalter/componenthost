@@ -1,3 +1,5 @@
+// taken from https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md#wit-types
+// does not compile
 package local:demo
 
 world my-world {
@@ -7,3 +9,20 @@ world my-world {
 
   export run: func()
 }
+
+
+// does not compile either
+// interface decoding {
+//   record test {
+//     t1: u32,
+//   }
+
+//   record r {
+//     a: u32,
+//     b: string,
+//   }
+// }
+
+// default world decoder {
+//   export exports: decoding
+// }
