@@ -1,17 +1,16 @@
+// The following does NOT compile
 // taken from https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md#wit-types
-// does not compile
-package local:demo
+//package local:demo
 
-world my-world {
-  import host: interface {
-    log: func(param: string)
-  }
+//world my-world {
+//  import host: interface {
+//    log: func(param: string)
+//  }
 
-  export run: func()
-}
+//  export run: func()
+//}
 
-
-// does not compile either
+// The following does NOT compile
 // interface decoding {
 //   record test {
 //     t1: u32,
@@ -26,3 +25,32 @@ world my-world {
 // default world decoder {
 //   export exports: decoding
 // }
+
+// The following does NOT compile
+// e.g. `use exports::Test` yield a compiler error
+// interface decoding {
+//   record test {
+//     t1: u32,
+//   }
+
+//   record r {
+//     a: u32,
+//     b: string,
+//   }
+// }
+
+// default world decoder {
+//   export exports: decoding
+// }
+
+// The following DOES compile BUT the records remain unknown
+// e.g. `use exports::Test` yields a compiler error
+interface decoding {
+  record test {
+    t1: u32,
+  }
+}
+
+default world decoder {
+  export exports: self.decoding
+}
