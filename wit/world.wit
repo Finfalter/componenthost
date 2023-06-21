@@ -1,3 +1,4 @@
+// without `package` specifier this does not compile
 package sth:local
 
 interface decoding {
