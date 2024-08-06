@@ -1,23 +1,10 @@
-// without `package` specifier this does not compile
-package sth:local
+//      namespace:package
+package finfalter:courtesy@0.1.0;
 
-interface decoding {
-  record mytest {
-    t1: u32,
-  }
-
-  type t2 = tuple<u32, u64> 
-
-  union fancyunion {
-    u64,
-    string,
-  }
-
-  my-function: func() -> (a: u32, b: float32)
-
+interface greeting {
+    greet: func(in: string) -> string;
 }
 
-// `default world decoder` does NOT compile
-world decoder {
-  export decoding
+world courtesy {
+    export greeting;
 }

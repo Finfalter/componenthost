@@ -1,6 +1,6 @@
-# componenthost
-Minimal example of wasmtime about generating the wit for a component.
+# Componenthost
+Minimal example for a Rust based WASM host.
 
 ```bash
-cargo build
+cargo run --release
 ```
