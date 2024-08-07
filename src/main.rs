@@ -1,9 +1,10 @@
 use std::path::Path;
 use anyhow::Context;
 use std::path::PathBuf;
-use std::time::{Instant};
+use std::time::Instant;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
+use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, DirPerms, FilePerms};
 
 wasmtime::component::bindgen!({
     path: "wit/read.wit",
@@ -30,15 +31,27 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn init(path: PathBuf) -> wasmtime::Result<(Discovery, Store<i32>)> {
+pub async fn init(path: PathBuf) -> wasmtime::Result<(Discovery, Store<WasiCtx>)> {
     let mut configuration = Config::new();
     configuration.wasm_component_model(true);
     configuration.async_support(true);
 
     let engine = Engine::new(&configuration).unwrap();
-    let linker = Linker::<i32>::new(&engine);
+    let linker = Linker::<WasiCtx>::new(&engine);
 
-    let mut store = Store::new(&engine, 0);
+    // Make `./host-directory` available in the guest as `.`
+    // wasi.preopened_dir("./host-directory", ".", DirPerms::all(), FilePerms::all());
+
+    // Get the current working directory of the host process
+    // let cwd = env::current_dir().expect("Failed to get current working directory");
+
+
+    // Make `./readonly` available in the guest as `./ro`
+    let wasi = WasiCtxBuilder::new()
+        .preopened_dir("./", "/data", DirPerms::all(), FilePerms::all())?
+        .build();
+
+    let mut store = Store::new(&engine, wasi);
 
     let component = Component::from_file(&engine, path).context("Component file not found")?;
 
@@ -49,7 +62,7 @@ pub async fn init(path: PathBuf) -> wasmtime::Result<(Discovery, Store<i32>)> {
     return Ok((worker, store));
 }
 
-pub async fn process(parameter: String, worker: Discovery, mut store: Store<i32>) -> wasmtime::Result<String> {
+pub async fn process(parameter: String, worker: Discovery, mut store: Store<WasiCtx>) -> wasmtime::Result<String> {
     worker
         .interface0
         .call_read(&mut store, &parameter)

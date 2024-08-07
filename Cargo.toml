@@ -10,3 +10,4 @@ anyhow = "1.0.72"
 async-std = { version = "1.12.0", features = ["attributes"] }
 # wasmtime = { version = "16.0.0", features = ["component-model"]}
 wasmtime = { version = "23.0.1", features = ["component-model"]}
+wasmtime-wasi = "23.0.1"
