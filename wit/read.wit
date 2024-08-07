@@ -1,0 +1,9 @@
+package finfalter:reader;
+
+interface discover {
+    read: func(anything: string) -> string;
+}
+
+world discovery {
+    export discover;
+}

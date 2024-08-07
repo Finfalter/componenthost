@@ -6,8 +6,8 @@ use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
 
 wasmtime::component::bindgen!({
-    path: "wit/world.wit",
-    world: "courtesy",
+    path: "wit/read.wit",
+    world: "discovery",
     async: true
 });
 
@@ -15,23 +15,22 @@ wasmtime::component::bindgen!({
 async fn main() -> anyhow::Result<()> {
     println!("Ramping up ..");
 
-    let name = "Joe".to_string();
-    println!("Trying to greet '{}'", &name);
+    let parameter = "Joe".to_string();
 
-    let my_component = Path::new("./greeter.wasm").to_path_buf();
+    let my_component = Path::new("./reader.wasm").to_path_buf();
 
     let start = Instant::now();
     let (greeter, store) = init(my_component).await?;
     let duration = start.elapsed();
     println!("Initialization .. took {:?}", duration);
 
-    let result = greet(name, greeter, store).await?;
+    let result = process(parameter, greeter, store).await?;
     println!("Getting back: '{}'", result);
     
     Ok(())
 }
 
-pub async fn init(path: PathBuf) -> wasmtime::Result<(Courtesy, Store<i32>)> {
+pub async fn init(path: PathBuf) -> wasmtime::Result<(Discovery, Store<i32>)> {
     let mut configuration = Config::new();
     configuration.wasm_component_model(true);
     configuration.async_support(true);
@@ -43,17 +42,17 @@ pub async fn init(path: PathBuf) -> wasmtime::Result<(Courtesy, Store<i32>)> {
 
     let component = Component::from_file(&engine, path).context("Component file not found")?;
 
-    let greeter = Courtesy::instantiate_async(&mut store, &component, &linker)
+    let worker = Discovery::instantiate_async(&mut store, &component, &linker)
         .await
         .context("Failed to instantiate the example world")?;
 
-    return Ok((greeter, store));
+    return Ok((worker, store));
 }
 
-pub async fn greet(name: String, greeter: Courtesy, mut store: Store<i32>) -> wasmtime::Result<String> {
-    greeter
+pub async fn process(parameter: String, worker: Discovery, mut store: Store<i32>) -> wasmtime::Result<String> {
+    worker
         .interface0
-        .call_greet(&mut store, &name)
+        .call_read(&mut store, &parameter)
         .await
         .context("Failed to call add function")        
 }
